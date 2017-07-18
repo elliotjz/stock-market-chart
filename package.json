@@ -1,0 +1,19 @@
+{
+  "name": "stock-market-chart",
+  "version": "1.0.0",
+  "description": "FreeCodeCamp Dynamic Web App Project - Chart the stock Market",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elliotjz/stock-market-chart.git"
+  },
+  "author": "elliotjz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elliotjz/stock-market-chart/issues"
+  },
+  "homepage": "https://github.com/elliotjz/stock-market-chart#readme"
+}
