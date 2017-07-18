@@ -1,0 +1,13 @@
+head
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js")
+
+body
+	h1 Stock Market App
+	div#output
+	input(type="text", placeholder="Handle")#handle
+	input(type="text", placeholder="Message")#message
+	button#btn Send
+	each quote in quotes
+		p= quote.close
+
+	script(src="/js/index.js")
