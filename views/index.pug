@@ -1,13 +1,20 @@
 head
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js")
+	script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
 
 body
 	h1 Stock Market App
 	div#output
+	div#feedback
 	input(type="text", placeholder="Handle")#handle
 	input(type="text", placeholder="Message")#message
 	button#btn Send
+	div.chart-container
+		canvas#my-chart
 	each quote in quotes
 		p= quote.close
-
+	
+	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
+	script(src="/js/chart.js")
 	script(src="/js/index.js")
+

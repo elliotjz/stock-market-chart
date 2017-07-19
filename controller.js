@@ -28,7 +28,7 @@ module.exports = function(app) {
             to: '2014-12-31'
         }, function (err, quotes) {
             if (err) throw err;
-
+            console.log(quotes);
             res.render("index", {
                 quotes: quotes
             });
