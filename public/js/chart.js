@@ -2,23 +2,40 @@ $(document).ready(function() {
 
     function getHistoricalData(stockCode, callback) {
 
-        let baseUrl = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=';
+        let baseUrl = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=';
         let keyUrl = '&apikey=26BIR4PKMC1G6V0A';
 
         let url = baseUrl + stockCode + keyUrl;
         $.getJSON(url, function(data) {
             let err = null;
-            if (!data || !data['Time Series (Daily)']) {
+            if (!data || !data['Weekly Time Series']) {
                 err = true;
             }
-            callback(err, !err && data['Time Series (Daily)']);
+            callback(err, !err && data['Weekly Time Series']);
         });
     }
 
-    getHistoricalData('SAS.AX', function(err, data) {
+    chartStocks(['GOOG', 'MSFT']);
 
-        let keys = Object.keys(data);
-        let values = Object.values(data);
+    function chartStocks(stocks) {
+
+    }
+    
+    getHistoricalData('FBR.AX', function(err, data) {
+
+        let date = new Date();
+        let fiveYearsAgo = date.setYear(date.getYear() + 1900 - 5);
+        
+        let fiveYearData = {};
+        for (item in data) {
+            let dataDate = new Date(item);
+            if (dataDate > fiveYearsAgo) {
+                fiveYearData[item.split(' ')[0]] = data[item];
+            }
+        }
+
+        let keys = Object.keys(fiveYearData);
+        let values = Object.values(fiveYearData).reverse;
         let closePrices = [];
         for (let i = 0; i < values.length; i++) {
             closePrices.push(values[i]["4. close"]);
