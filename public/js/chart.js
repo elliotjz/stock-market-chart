@@ -40,7 +40,7 @@ $(document).ready(function() {
     }
 
 
-    chartStocks(['AMZN', 'FB']);
+    chartStocks(['AMZN']);
 
     function putItOnAChart(stocks, historicalDataArray) {
 
@@ -60,24 +60,46 @@ $(document).ready(function() {
                 label: stocks[i],
                 backgroundColor: 'rgba(0,0,0,0)',
                 borderColor: 'rgb(255, 99, 132)',
-                data: values
+                data: values,
+                pointRadius: 2,
+                pointHoverBackgroundColor: 'rgb(0, 99, 132)',
             }
 
             datasets.push(data);
         }
+
+        let options = {
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Price',
+                        fontSize: 20
+                    }
+                }],
+                xAxes: [{
+                    type: 'time',
+                    unit: 'day',
+                    unitStepSize: 1,
+                    time: {
+                        displayFormats: {
+                            'day': 'MMM DD'
+                        }
+                    }
+                }]
+            }
+        };
         
         // create chart
         let ctx = document.getElementById('my-chart').getContext('2d');
-        
-        let myData = {
-            labels: labels,
-            datasets: datasets
-        }
 
         let myLineChart = new Chart(ctx, {
             type: 'line',
-            data: myData,
-            options: {}
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: options
         });
     }
 
@@ -90,7 +112,7 @@ $(document).ready(function() {
         for (key in fullData) {
             let dataDate = new Date(key);
             if (dataDate > fiveYearsAgo) {
-                parsedData[key.split(' ')[0]] = fullData[key]['4. close'];
+                parsedData[dataDate] = fullData[key]['4. close'];
             }
         }
 
