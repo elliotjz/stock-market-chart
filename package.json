@@ -18,7 +18,6 @@
   "homepage": "https://github.com/elliotjz/stock-market-chart#readme",
   "dependencies": {
     "express": "^4.15.3",
-    "google-finance": "^0.1.9",
     "pug": "^2.0.0-rc.2",
     "socket.io": "^2.0.3"
   }

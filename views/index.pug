@@ -11,9 +11,7 @@ body
 	button#btn Send
 	div.chart-container
 		canvas#my-chart
-	each quote in quotes
-		p= quote.close
-	
+
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
 	script(src="/js/chart.js")
 	script(src="/js/index.js")
