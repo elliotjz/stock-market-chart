@@ -1,8 +1,9 @@
 'use strict'
 
 const express = require("express");
-const controller = require('./controller');
+const env = require('./env');
 const socket = require('socket.io');
+const mongoose = require('mongoose');
 
 
 const app = express();
@@ -12,16 +13,29 @@ app.set("view engine", "pug");
 
 app.use(express.static('./public'));
 
+mongoose.connect(env.MLAB_URL || process.env.MLAB_URL);
+let stocksSchema = new mongoose.Schema({
+    id: String,
+    stocks: Array
+})
+
+let StocksModel = mongoose.model('stocks', stocksSchema);
+
+
 // Set up Routes
-controller(app);
+app.get("/", function(req, res) {
+    
+    res.render("index");
+    
+})
 
-
+// Listen to port
 const port = process.env.PORT || 3000;
-
 let server = app.listen(port, function(){
     console.log("Server running");
 });
 
+// Listen to socket.io
 let io = socket(server);
 
 io.on('connection', function(socket) {

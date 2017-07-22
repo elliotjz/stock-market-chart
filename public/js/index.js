@@ -18,7 +18,6 @@ $(document).ready(function() {
                 })
             })
             promises.push(p);
-            console.log("promise created for " + stocks[i]);
         }
         Promise.all(promises).then(historicalDataArray => {
             putItOnAChart(stocks, historicalDataArray);
@@ -27,12 +26,9 @@ $(document).ready(function() {
 
     function getHistoricalData(stockCode, callback) {
 
-        console.log("getting historical data for " + stockCode);
 
         let dataFromSessionStorage = JSON.parse(sessionStorage.getItem(stockCode));
         if (dataFromSessionStorage) {
-        	console.log('data from session storage:');
-        	console.log(dataFromSessionStorage);
         	callback(null, dataFromSessionStorage);
         } else {
         	let baseUrl = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=';
@@ -44,13 +40,9 @@ $(document).ready(function() {
 	            if (!data || !data['Weekly Time Series']) {
 	                err = true;
 	            }
-	            console.log('data for ' + stockCode + ":");
-	            console.log(data);
 
 	            let parsedData = parseData(data['Weekly Time Series']);
 
-	            console.log("parsed data:");
-	            console.log(parsedData);
 	            sessionStorage.setItem(stockCode, JSON.stringify(parsedData));
 	            callback(err, !err && parsedData);
 	        });
@@ -58,6 +50,10 @@ $(document).ready(function() {
     }
 
     function putItOnAChart(stocks, historicalDataArray) {
+
+    	// Delete old chart
+    	$('#chart-container').remove();
+
 
         let datasets = [];
         let labels = [];
@@ -74,10 +70,10 @@ $(document).ready(function() {
             let data = {
                 label: stocks[i],
                 backgroundColor: 'rgba(0,0,0,0)',
-                borderColor: 'rgb(255, 99, 132)',
+                borderColor: randomColor(),
                 data: values,
                 pointRadius: 2,
-                pointHoverBackgroundColor: 'rgb(0, 0, 0)',
+                pointHitRadius: 5
             }
 
             datasets.push(data);
@@ -102,13 +98,19 @@ $(document).ready(function() {
                         }
                     }
                 }]
+            },
+            legend: {
+                onClick: (e) => e.stopPropagation()
             }
         };
         
+        // Add new canvas for new chart
+        $('#heading').after('<div id="chart-container"><canvas id="my-chart"></canvas></div>');
+
         // create chart
         let ctx = document.getElementById('my-chart').getContext('2d');
 
-        let myLineChart = new Chart(ctx, {
+        myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
@@ -136,6 +138,14 @@ $(document).ready(function() {
         return parsedData;
     }
 
+    function randomColor() {
+    	let r1 = Math.round(Math.random() * 255);
+    	let r2 = Math.round(Math.random() * 255);
+    	let r3 = Math.round(Math.random() * 255);
+    	let colorStr = 'rgb(' + r1 + ',' + r2 + ',' + r3 + ')';
+  		return colorStr;
+	};
+
     // Make connection
     let socket = io.connect('http://localhost:3000');
 
@@ -162,13 +172,16 @@ $(document).ready(function() {
     	let stocks = [];
 
     	$('#stock-list').find('li').each(function() {
-    		stocks.push(this.innerHTML);
+    		stocks.push(this.innerHTML.replace(/\-/g, '.'));
     		if (this.innerHTML == data.stock) {
     			alreadyInList = true;
     		}
     	});
     	if (!alreadyInList) {
-    		$('#stock-list').append('<li class="stock" id="' + data.stock + '">' + data.stock + '</li>');
+    		let html = '<li class="stock" id="' + data.stock + '">' + data.stock + '</li>';
+    		html = html.replace(/\./g, '-');
+    		console.log('html: ', html);
+    		$('#stock-list').append(html);
     		stocks.push(data.stock);
     	}
         chartStocks(stocks);
@@ -180,7 +193,7 @@ $(document).ready(function() {
     	let lis = document.getElementById("stock-list").getElementsByTagName("li");
         let stocks = [];
         for (let i = 0; i < lis.length; i++) {
-        	stocks.push(lis[i].innerHTML);
+        	stocks.push(lis[i].innerHTML.replace(/\-/g, '.'));
         }
         chartStocks(stocks);
     })
