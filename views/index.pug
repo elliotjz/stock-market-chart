@@ -1,19 +1,19 @@
 head
+	link(rel='stylesheet', href="css/main.css", type="text/css")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js")
-	script(src="https://momentjs.com/downloads/moment.js")
+	script(src="/js/moment.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
 
 body
-	h1 Stock Market App
-	div#output
-	div#feedback
-	input(type="text", placeholder="Handle")#handle
-	input(type="text", placeholder="Message")#message
-	button#btn Send
-	div.chart-container
+	h1#heading Stock Market App
+	div#chart-container
 		canvas#my-chart
-
+	div
+		p Add or remove stocks
+		form(action='')#search-form
+			input(type="text", placeholder="Search for a stock")#search-input
+		ul#stock-list
+			li.stock#AMZN AMZN
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
-	script(src="/js/chart.js")
 	script(src="/js/index.js")
 

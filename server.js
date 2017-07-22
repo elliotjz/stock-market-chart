@@ -28,16 +28,14 @@ io.on('connection', function(socket) {
     console.log('made socket connection');
     console.log(socket.id);
 
-    socket.on('chat', function(data) {
-        io.sockets.emit('chat', data);
+    socket.on('add-stock', function(data) {
+        io.sockets.emit('add-stock', data);
     });
 
-    socket.on('typing', function(data) {
-        socket.broadcast.emit('typing', data);
-    });
+    socket.on('remove-stock', function(data) {
+    	io.sockets.emit('remove-stock', data);
+    })
+
 })
-
-
-
 
 
