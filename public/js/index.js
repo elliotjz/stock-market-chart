@@ -2,7 +2,12 @@
 $(document).ready(function() {
 
 	// Collecting stock data
-    chartStocks(['AMZN']);
+	let stockFromDB = [];
+	$('#stock-list').find('li').each(function() {
+		console.log('sending li info to DB');
+		stockFromDB.push(this.innerHTML.replace(/\-/g, '.'));
+	});
+    chartStocks(stockFromDB);
 
     function chartStocks(stocks) {
 
@@ -12,15 +17,31 @@ $(document).ready(function() {
 
         for (let i = 0; i < stocks.length; i++) {
             let p = new Promise(function(resolve, reject) {
+            	console.log('promise made for ', stocks[i]);
                 getHistoricalData(stocks[i], function(err, data) {
                     if (err) reject(err);
-                    resolve(data);
+                    console.log('data for ' + stocks[i]);
+                    console.log(data);
+                    if (data) {
+                    	resolve(data);
+                    } else {
+                    	reject(stocks[i]);
+                    }
+                    
                 })
             })
             promises.push(p);
         }
         Promise.all(promises).then(historicalDataArray => {
             putItOnAChart(stocks, historicalDataArray);
+        }, function(stockCode) {
+        	console.log('rejectted!!!');
+        	console.log(stockCode);
+        	$('#message').html('The stock your searched for wansn\'t found.');
+        	stockCode = stockCode.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
+	    	socket.emit('remove-stock', {
+	    		stock: stockCode
+	    	})
         })
     }
 
@@ -29,6 +50,7 @@ $(document).ready(function() {
 
         let dataFromSessionStorage = JSON.parse(sessionStorage.getItem(stockCode));
         if (dataFromSessionStorage) {
+        	console.log('got data for ' + stockCode + 'from sessionStorage');
         	callback(null, dataFromSessionStorage);
         } else {
         	let baseUrl = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=';
@@ -44,7 +66,12 @@ $(document).ready(function() {
 	            let parsedData = parseData(data['Weekly Time Series']);
 
 	            sessionStorage.setItem(stockCode, JSON.stringify(parsedData));
-	            callback(err, !err && parsedData);
+	            console.log('got data for ' + stockCode + 'from API');
+	            if (err) {
+	            	callback(stockCode);
+	            } else {
+	            	callback(err, !err && parsedData);
+	            }
 	        });
         }
     }
@@ -72,8 +99,9 @@ $(document).ready(function() {
                 backgroundColor: 'rgba(0,0,0,0)',
                 borderColor: randomColor(),
                 data: values,
-                pointRadius: 2,
-                pointHitRadius: 5
+                pointRadius: 1,
+                pointHitRadius: 5,
+                borderWidth: 2
             }
 
             datasets.push(data);
@@ -107,6 +135,7 @@ $(document).ready(function() {
         // Add new canvas for new chart
         $('#heading').after('<div id="chart-container"><canvas id="my-chart"></canvas></div>');
 
+        console.log('have all the data and chartig: ' + stocks);
         // create chart
         let ctx = document.getElementById('my-chart').getContext('2d');
 
@@ -150,40 +179,53 @@ $(document).ready(function() {
     let socket = io.connect('http://localhost:3000');
 
     // Emit Events
-    $('#search-form').on('submit', function() {
-        socket.emit('add-stock', {
-            stock: $('#search-input').val()
-        })
+    $('#search-form').on('submit', function(e) {
+    	e.preventDefault();
+
+    	let newStock = $('#search-input').val();
+    	newStock = newStock.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
+    	let alreadyInList = false;
+
+    	$('#stock-list').find('li').each(function() {
+    		if (this.innerHTML == newStock) {
+    			alreadyInList = true;
+    		}
+    	});
+
+		if (!alreadyInList) {
+			$('#message').html('');
+	        socket.emit('add-stock', {
+	            stock: newStock
+	        })
+	    } else {
+	    	$('#message').html('Stock is already on chart');
+	    }
     })
 
     $('body').on('click', 'li.stock', function(e) {
-    	let stock = this.innerHTML;
+    	let stock = this.innerHTML.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
     	socket.emit('remove-stock', {
     		stock: stock
     	})
-    	
     })
 
     // Listen for events
     socket.on('add-stock', function(data) {
-    	console.log('adding stock to list');
+    	console.log('adding stock to list: ', data.stock);
 
-    	let alreadyInList = false;
     	let stocks = [];
-
     	$('#stock-list').find('li').each(function() {
-    		stocks.push(this.innerHTML.replace(/\-/g, '.'));
-    		if (this.innerHTML == data.stock) {
-    			alreadyInList = true;
-    		}
+    		stocks.push(this.innerHTML);
     	});
-    	if (!alreadyInList) {
-    		let html = '<li class="stock" id="' + data.stock + '">' + data.stock + '</li>';
-    		html = html.replace(/\./g, '-');
-    		console.log('html: ', html);
-    		$('#stock-list').append(html);
-    		stocks.push(data.stock);
-    	}
+
+    	let stockNoDash = data.stock.replace(/\-/g, '.');
+
+    	let html = '<li class="stock" id="' + data.stock + '">' + stockNoDash + '</li>';
+    	$('#stock-list').append(html);
+
+    	stocks.push(stockNoDash);
+    	
+    	console.log("stock added to list.");
         chartStocks(stocks);
     })
 

@@ -10,10 +10,12 @@ body
 		canvas#my-chart
 	div
 		p Add or remove stocks
-		form(action='#')#search-form
+		form#search-form
 			input(type="text", placeholder="Search for a stock")#search-input
+		p#message
 		ul#stock-list
-			li.stock#AMZN AMZN
+			each stock in stocks
+				li(id=stock).stock= stock.replace(/\-/g, '.')
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
 	script(src="/js/index.js")
 
