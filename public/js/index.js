@@ -150,27 +150,41 @@ $(document).ready(function() {
     }
 
     function parseData(fullData) {
-
+    	console.log(fullData);
+    	let dateList = [];
+    	let priceList = [];
         let date = moment();
-
-        let fiveYearsAgo = date.year(date.year() - 5);
+        let fiveYearsAgo = moment().year(date.year()-5);
         
-        let parsedData = {};
+        while (date > fiveYearsAgo) {
+        	dateList.push(date.format('D MMM YYYY'));
+        	if (date.format('YYYY-MM-DD') in fullData) {
+        		priceList.push(fullData[date.format('YYYY-MM-DD')]['4. close']);
+        	} else {
+        		priceList.push(null);
+        	}
+        	date = date.day(-2);
+        }
 
-        for (key in fullData) {
+        console.log(dateList);
+        console.log(priceList)
+
+        /*for (key in fullData) {
             let dataDate = moment(key);
             if (dataDate > fiveYearsAgo) {
-                parsedData[dataDate.format('D MMM YYYY')] = fullData[key]['4. close'];
+            	console.log('date: ', dataDate.format('D MMM YYYY'));
+            	console.log('index:', parsedData.indexOf([dataDate.format('D MMM YYYY'), null]));
+                parsedData[parsedData.indexOf([dataDate.format('D MMM YYYY'), null])] [1] = fullData[key]['4. close'] == 0 ? null : fullData[key]['4. close'];
             }
-        }
+        }*/
 
         return parsedData;
     }
 
     function randomColor() {
-    	let r1 = Math.round(Math.random() * 255);
-    	let r2 = Math.round(Math.random() * 255);
-    	let r3 = Math.round(Math.random() * 255);
+    	let r1 = Math.round(Math.random() * 200);
+    	let r2 = Math.round(Math.random() * 200);
+    	let r3 = Math.round(Math.random() * 200);
     	let colorStr = 'rgb(' + r1 + ',' + r2 + ',' + r3 + ')';
   		return colorStr;
 	};
