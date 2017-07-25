@@ -1,5 +1,7 @@
 
-let socket = io.connect('http://localhost:3000');
+//let socket = io.connect('http://localhost:3000');
+let socket - io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
+
 
 function chartStocks(stocks, timePereod) {
 
