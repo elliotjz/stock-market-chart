@@ -1,4 +1,5 @@
 
+let socket = io.connect('http://localhost:3000');
 
 function chartStocks(stocks, timePereod) {
 
@@ -6,8 +7,13 @@ function chartStocks(stocks, timePereod) {
 
     for (let i = 0; i < stocks.length; i++) {
         let p = new Promise(function(resolve, reject) {
+
+            let spinner = new Spinner().spin();
+            $('#' + stocks[i].replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-')).append(spinner.el);
+
             getHistoricalData(stocks[i], function(err, data) {
                 if (err) reject(err);
+                spinner.stop();
                 if (data) {
                 	resolve(data);
                 } else {
@@ -24,11 +30,12 @@ function chartStocks(stocks, timePereod) {
     }, function(stockCode) {
     	// ERROR
     	console.log('Error for ' + stockCode);
-    	$('#message').html('The stock your searched for wansn\'t found.');
+    	$('#message').html('The stock you searched for wasn\'t found.');
+        $('#message').show(500);
     	stockCode = stockCode.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
     	socket.emit('remove-stock', {
-    		stock: stockCode
-    	})
+            stock: stockCode
+        })
     })
 }
 
@@ -72,71 +79,81 @@ function putItOnAChart(stocks, historicalDataArray, timePereod) {
 	// Delete old chart
 	$('#chart-container').remove();
 
-	parsedData = parseDataToChart(historicalDataArray, timePereod);
+    let dateList;
+    let datasets;
+    let options;
+    if (!!historicalDataArray[0]) {
 
-	dateList = parsedData[0]['dates'];
+    	parsedData = parseDataToChart(historicalDataArray, timePereod);
 
-    let datasets = [];
-    for (let i = 0; i < stocks.length; i++) {
+    	dateList = parsedData[0]['dates'];
 
-        let prices = parsedData[i]['prices'];
+        datasets = [];
+        for (let i = 0; i < stocks.length; i++) {
 
-        let data = {
-            label: stocks[i],
-            backgroundColor: 'rgba(0,0,0,0)',
-            borderColor: randomColor(),
-            data: prices,
-            pointRadius: 1,
-            pointHitRadius: 5,
-            borderWidth: 2,
-            spanGaps: true
+            let prices = parsedData[i]['prices'];
+
+            let data = {
+                label: stocks[i],
+                backgroundColor: 'rgba(0,0,0,0)',
+                borderColor: randomColor(),
+                data: prices,
+                pointRadius: 1,
+                pointHitRadius: 5,
+                borderWidth: 1,
+                spanGaps: true
+            }
+
+            datasets.push(data);
         }
 
-        datasets.push(data);
-    }
-
-    let options = {
-        scales: {
-            yAxes: [{
-                scaleLabel: {
-                    display: true,
-                    labelString: 'Percentage Change',
-                    fontSize: 20
-                },
-                ticks: {
-                callback: function(value, index, values) {
-                    return value + '%';
-                }
-            }
-            }],
-            xAxes: [{
-                type: 'time',
-                unit: 'day',
-                unitStepSize: 1,
-                time: {
-                    displayFormats: {
-                        'day': 'MMM DD'
+        options = {
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Percentage Change',
+                        fontSize: 20
+                    },
+                    ticks: {
+                    callback: function(value, index, values) {
+                        return value + '%';
                     }
-                },
-                ticks: {
-                	minRotation: 45
                 }
-            }]
-        },
-        legend: {
-            onClick: (e) => e.stopPropagation()
-        },
-        tooltips: {
-    		callbacks: {
-        		label: function(tooltipItem, data) {
-            		return tooltipItem.yLabel.toFixed(2) + '%';
-        		},
-        		title: function(toolTipItem, data) {
-        			return data.datasets[toolTipItem[0]['datasetIndex']].label;
+                }],
+                xAxes: [{
+                    type: 'time',
+                    unit: 'day',
+                    unitStepSize: 1,
+                    time: {
+                        displayFormats: {
+                            'day': 'MMM DD'
+                        }
+                    },
+                    ticks: {
+                    	minRotation: 45
+                    }
+                }]
+            },
+            legend: {
+                onClick: (e) => e.stopPropagation()
+            },
+            tooltips: {
+        		callbacks: {
+            		label: function(tooltipItem, data) {
+                		return tooltipItem.yLabel.toFixed(2) + '%';
+            		},
+            		title: function(toolTipItem, data) {
+            			return data.datasets[toolTipItem[0]['datasetIndex']].label;
+            		}
         		}
     		}
-		}
-    };
+        };
+    } else {
+        dateList = [];
+        datasets = [];
+        options = {};
+    }
     
     // Add new canvas for new chart
     $('#heading').after('<div id="chart-container"><canvas id="my-chart"></canvas></div>');

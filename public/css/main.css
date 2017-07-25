@@ -1,8 +1,90 @@
 
+body {
+	text-align: center;
+	font-family: 'Open Sans', sans-serif;
+	background-color: #eaeff7;
+}
+
+#chart-container {
+	width: 95%;
+	min-height: 300px;
+	max-width: 1000px;
+	margin: auto;
+	background-color: #fff;
+	padding: 5px;
+	border-radius: 5px;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+#controlls {
+	max-width: 400px;
+	background-color: #fff;
+	border-radius: 5px;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+	font-size: 14px;
+	margin: 20px auto;
+	padding: 10px;
+}
+
+#search-form label {
+	margin-right: 10px;
+}
+
+#search-form input {
+	width: 150px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+ul {
+	list-style-type: none;
+	padding: 0;
+}
+
+button:focus {
+	outline: 0;
+}
+
+.stock {
+	background-color: #7aa7ef;
+	border-radius: 4px;
+	border: solid #000 1px;
+	padding: 3px;
+	width: 100px;
+	margin: 2px auto;
+}
 .stock:hover {
 	text-decoration: line-through;
+	cursor: pointer;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+}
+
+.time-btn {
+	background: #7aa7ef;
+	padding: 3px 8px;
+	border: 1px solid #000;
+	border-radius: 4px;
+	margin: 2px;
+	font-size: 14px;
+}
+
+.time-btn:hover {
+	cursor: pointer;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
 }
 
 .selected-time {
-	background-color: blue; 
+	background-color: #2f78ed;
+	border: 2px solid #000;
+}
+
+#message {
+	background-color: #efdede;
+	color: #560808;
+	border-radius: 5px;
+	border: #560808 solid 1px;
 }

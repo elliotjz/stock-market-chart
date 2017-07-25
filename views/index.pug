@@ -3,26 +3,29 @@ head
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js")
 	script(src="/js/moment.js")
 	script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
+	link(href="https://fonts.googleapis.com/css?family=Open+Sans", rel="stylesheet")
 
 body
-	h1#heading Stock Market App
+	h1#heading Stock Charting App
 	div#chart-container
 		canvas#my-chart
-	div
-		p Add or remove stocks
+	div#controlls
 		form#search-form
-			input(type="text", placeholder="Search for a stock")#search-input
+			label Search for a stock to add:
+			input(type="text", placeholder="Stock Code...")#search-input
+			div#spinner-container
 		p#message
 		ul#stock-list
 			each stock in stocks
 				li(id=stock).stock= stock.replace(/\-/g, '.')
 		form#time-pereod-form
-			button.time-btn.selected-time#time60 5 Years
-			button.time-btn#time36 3 Years
-			button.time-btn#time12 1 Year
-			button.time-btn#time6 6 Months
-			button.time-btn#time3 3 Months
+			button.time-btn.selected-time#time60 5Y
+			button.time-btn#time36 3Y
+			button.time-btn#time12 1Y
+			button.time-btn#time6 6M
+			button.time-btn#time3 3M
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
+	script(src="/js/spin.min.js")
 	script(src="/js/index.js")
 	script(src="/js/helpers.js")
 

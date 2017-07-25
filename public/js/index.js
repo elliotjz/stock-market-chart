@@ -1,6 +1,7 @@
 
 $(document).ready(function() {
 
+    $('#message').hide();
 	// Collecting stock data
 	let stockFromDB = [];
 	$('#stock-list').find('li').each(function() {
@@ -13,14 +14,15 @@ $(document).ready(function() {
 
     // Connect to socket
     let socket = io.connect('http://localhost:3000');
+    //let socket - io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
 
 
     // Emit Events
     $('#search-form').on('submit', function(e) {
     	e.preventDefault();
 
-    	let newStock = $('#search-input').val();
-    	newStock = newStock.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
+    	let newStock = $('#search-input').val().toUpperCase();
+
     	let alreadyInList = false;
 
     	$('#stock-list').find('li').each(function() {
@@ -30,20 +32,21 @@ $(document).ready(function() {
     	});
 
 		if (!alreadyInList) {
-			$('#message').html('');
+			$('#message').hide();
 	        socket.emit('add-stock', {
-	            stock: newStock
+	            stock: newStock.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-')
 	        })
 	    } else {
 	    	$('#message').html('Stock is already on chart');
+            $('#message').show(500);
 	    }
     })
 
     $('body').on('click', 'li.stock', function(e) {
     	let stock = this.innerHTML.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
     	socket.emit('remove-stock', {
-    		stock: stock
-    	})
+            stock: stock
+        })
     })
 
 
