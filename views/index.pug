@@ -16,6 +16,13 @@ body
 		ul#stock-list
 			each stock in stocks
 				li(id=stock).stock= stock.replace(/\-/g, '.')
+		form#time-pereod-form
+			button.time-btn.selected-time#time60 5 Years
+			button.time-btn#time36 3 Years
+			button.time-btn#time12 1 Year
+			button.time-btn#time6 6 Months
+			button.time-btn#time3 3 Months
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
 	script(src="/js/index.js")
+	script(src="/js/helpers.js")
 

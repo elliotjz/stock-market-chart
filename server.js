@@ -25,7 +25,8 @@ let StocksModel = mongoose.model('stocks', stocksSchema);
 // Set up Routes
 app.get("/", function(req, res) {
     
-    console.log('reloaded')
+    console.log('Reloaded.');
+    
     StocksModel.findOne({id: '0'}, function(err, dbData) {
     	if (err) throw err;
 

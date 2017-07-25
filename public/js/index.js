@@ -4,193 +4,16 @@ $(document).ready(function() {
 	// Collecting stock data
 	let stockFromDB = [];
 	$('#stock-list').find('li').each(function() {
-		console.log('sending li info to DB');
 		stockFromDB.push(this.innerHTML.replace(/\-/g, '.'));
 	});
-    chartStocks(stockFromDB);
 
-    function chartStocks(stocks) {
-
-        console.log("charting " + stocks);
-
-        let promises = [];
-
-        for (let i = 0; i < stocks.length; i++) {
-            let p = new Promise(function(resolve, reject) {
-            	console.log('promise made for ', stocks[i]);
-                getHistoricalData(stocks[i], function(err, data) {
-                    if (err) reject(err);
-                    console.log('data for ' + stocks[i]);
-                    console.log(data);
-                    if (data) {
-                    	resolve(data);
-                    } else {
-                    	reject(stocks[i]);
-                    }
-                    
-                })
-            })
-            promises.push(p);
-        }
-        Promise.all(promises).then(historicalDataArray => {
-            putItOnAChart(stocks, historicalDataArray);
-        }, function(stockCode) {
-        	console.log('rejectted!!!');
-        	console.log(stockCode);
-        	$('#message').html('The stock your searched for wansn\'t found.');
-        	stockCode = stockCode.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
-	    	socket.emit('remove-stock', {
-	    		stock: stockCode
-	    	})
-        })
-    }
-
-    function getHistoricalData(stockCode, callback) {
+	let initialTimePereod = parseInt($('.selected-time').attr('id').substr(4));
+    chartStocks(stockFromDB, initialTimePereod);
 
 
-        let dataFromSessionStorage = JSON.parse(sessionStorage.getItem(stockCode));
-        if (dataFromSessionStorage) {
-        	console.log('got data for ' + stockCode + 'from sessionStorage');
-        	callback(null, dataFromSessionStorage);
-        } else {
-        	let baseUrl = 'https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=';
-	        let keyUrl = '&apikey=26BIR4PKMC1G6V0A';
-
-	        let url = baseUrl + stockCode + keyUrl;
-	        $.getJSON(url, function(data) {
-	            let err = null;
-	            if (!data || !data['Weekly Time Series']) {
-	                err = true;
-	            }
-
-	            let parsedData = parseData(data['Weekly Time Series']);
-
-	            sessionStorage.setItem(stockCode, JSON.stringify(parsedData));
-	            console.log('got data for ' + stockCode + 'from API');
-	            if (err) {
-	            	callback(stockCode);
-	            } else {
-	            	callback(err, !err && parsedData);
-	            }
-	        });
-        }
-    }
-
-    function putItOnAChart(stocks, historicalDataArray) {
-
-    	// Delete old chart
-    	$('#chart-container').remove();
-
-
-        let datasets = [];
-        let labels = [];
-        for (let i = 0; i < stocks.length; i++) {
-
-            let itemData = historicalDataArray[i];
-            let keys = Object.keys(itemData).reverse();
-            let values = Object.values(itemData).reverse();
-            
-            if (keys.length > labels.length) {
-                labels = keys;
-            }
-
-            let data = {
-                label: stocks[i],
-                backgroundColor: 'rgba(0,0,0,0)',
-                borderColor: randomColor(),
-                data: values,
-                pointRadius: 1,
-                pointHitRadius: 5,
-                borderWidth: 2
-            }
-
-            datasets.push(data);
-        }
-
-        let options = {
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Price',
-                        fontSize: 20
-                    }
-                }],
-                xAxes: [{
-                    type: 'time',
-                    unit: 'day',
-                    unitStepSize: 1,
-                    time: {
-                        displayFormats: {
-                            'day': 'MMM DD'
-                        }
-                    }
-                }]
-            },
-            legend: {
-                onClick: (e) => e.stopPropagation()
-            }
-        };
-        
-        // Add new canvas for new chart
-        $('#heading').after('<div id="chart-container"><canvas id="my-chart"></canvas></div>');
-
-        console.log('have all the data and chartig: ' + stocks);
-        // create chart
-        let ctx = document.getElementById('my-chart').getContext('2d');
-
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: datasets
-            },
-            options: options
-        });
-    }
-
-    function parseData(fullData) {
-    	console.log(fullData);
-    	let dateList = [];
-    	let priceList = [];
-        let date = moment();
-        let fiveYearsAgo = moment().year(date.year()-5);
-        
-        while (date > fiveYearsAgo) {
-        	dateList.push(date.format('D MMM YYYY'));
-        	if (date.format('YYYY-MM-DD') in fullData) {
-        		priceList.push(fullData[date.format('YYYY-MM-DD')]['4. close']);
-        	} else {
-        		priceList.push(null);
-        	}
-        	date = date.day(-2);
-        }
-
-        console.log(dateList);
-        console.log(priceList)
-
-        /*for (key in fullData) {
-            let dataDate = moment(key);
-            if (dataDate > fiveYearsAgo) {
-            	console.log('date: ', dataDate.format('D MMM YYYY'));
-            	console.log('index:', parsedData.indexOf([dataDate.format('D MMM YYYY'), null]));
-                parsedData[parsedData.indexOf([dataDate.format('D MMM YYYY'), null])] [1] = fullData[key]['4. close'] == 0 ? null : fullData[key]['4. close'];
-            }
-        }*/
-
-        return parsedData;
-    }
-
-    function randomColor() {
-    	let r1 = Math.round(Math.random() * 200);
-    	let r2 = Math.round(Math.random() * 200);
-    	let r3 = Math.round(Math.random() * 200);
-    	let colorStr = 'rgb(' + r1 + ',' + r2 + ',' + r3 + ')';
-  		return colorStr;
-	};
-
-    // Make connection
+    // Connect to socket
     let socket = io.connect('http://localhost:3000');
+
 
     // Emit Events
     $('#search-form').on('submit', function(e) {
@@ -223,9 +46,9 @@ $(document).ready(function() {
     	})
     })
 
+
     // Listen for events
     socket.on('add-stock', function(data) {
-    	console.log('adding stock to list: ', data.stock);
 
     	let stocks = [];
     	$('#stock-list').find('li').each(function() {
@@ -239,8 +62,9 @@ $(document).ready(function() {
 
     	stocks.push(stockNoDash);
     	
-    	console.log("stock added to list.");
-        chartStocks(stocks);
+    	let timePereod = parseInt($('.selected-time').attr('id').substr(4));
+
+        chartStocks(stocks, timePereod);
     })
 
     socket.on('remove-stock', function(data) {
@@ -251,7 +75,26 @@ $(document).ready(function() {
         for (let i = 0; i < lis.length; i++) {
         	stocks.push(lis[i].innerHTML.replace(/\-/g, '.'));
         }
-        chartStocks(stocks);
+
+        let timePereod = parseInt($('.selected-time').attr('id').substr(4));
+
+        chartStocks(stocks, timePereod);
     })
 
+    // Time pereod adjustment
+    $('.time-btn').on('click', function(e) {
+    	e.preventDefault();
+    	$('.selected-time').removeClass('selected-time');
+    	$(this).addClass('selected-time');
+    	let timePereod = parseInt(this.id.substr(4));
+
+    	let lis = document.getElementById("stock-list").getElementsByTagName("li");
+        let stocks = [];
+        for (let i = 0; i < lis.length; i++) {
+        	stocks.push(lis[i].innerHTML.replace(/\-/g, '.'));
+        }
+        chartStocks(stocks, timePereod);
+    })
 })
+
+// console.log(typeof parseInt(this.id.substr(4)));

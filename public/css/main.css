@@ -2,3 +2,7 @@
 .stock:hover {
 	text-decoration: line-through;
 }
+
+.selected-time {
+	background-color: blue; 
+}
