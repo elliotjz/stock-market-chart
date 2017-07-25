@@ -13,8 +13,8 @@ app.set("view engine", "pug");
 
 app.use(express.static('./public'));
 
-mongoose.connect(env.MLAB_URL);
-//mongoose.connect(process.env.MLAB_URL);
+//mongoose.connect(env.MLAB_URL);
+mongoose.connect(process.env.MLAB_URL);
 let stocksSchema = new mongoose.Schema({
     id: String,
     stocks: Array
