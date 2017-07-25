@@ -1,7 +1,7 @@
 'use strict'
 
 const express = require("express");
-const env = require('./env');
+//const env = require('./env');
 const socket = require('socket.io');
 const mongoose = require('mongoose');
 
