@@ -1,6 +1,6 @@
 
-//let socket = io.connect('http://localhost:3000');
-let socket = io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
+let socket = io.connect('http://localhost:3000');
+//let socket = io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
 
 
 function chartStocks(stocks, timePereod) {
@@ -158,7 +158,7 @@ function putItOnAChart(stocks, historicalDataArray, timePereod) {
     }
     
     // Add new canvas for new chart
-    $('#heading').after('<div id="chart-container"><canvas id="my-chart"></canvas></div>');
+    $('#time-pereod-form').after('<div id="chart-container"><canvas id="my-chart"></canvas></div>');
 
     // create chart
     let ctx = document.getElementById('my-chart').getContext('2d');

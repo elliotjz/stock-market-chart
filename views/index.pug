@@ -7,6 +7,17 @@ head
 
 body
 	h1#heading Stock Charting App
+	form#time-pereod-form
+		div.time-btn.selected-time#time60
+			a 5Y
+		div.time-btn#time36
+			a 3Y
+		div.time-btn#time12
+			a 1Y
+		div.time-btn#time6
+			a 6M
+		div.time-btn#time3
+			a 3M
 	div#chart-container
 		canvas#my-chart
 	div#controlls
@@ -18,12 +29,7 @@ body
 		ul#stock-list
 			each stock in stocks
 				li(id=stock).stock= stock.replace(/\-/g, '.')
-		form#time-pereod-form
-			button.time-btn.selected-time#time60 5Y
-			button.time-btn#time36 3Y
-			button.time-btn#time12 1Y
-			button.time-btn#time6 6M
-			button.time-btn#time3 3M
+		p#note For Australian stocks, add .AX after the code.
 	script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js")
 	script(src="/js/spin.min.js")
 	script(src="/js/index.js")

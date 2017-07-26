@@ -2,6 +2,7 @@
 $(document).ready(function() {
 
     $('#message').hide();
+
 	// Collecting stock data
 	let stockFromDB = [];
 	$('#stock-list').find('li').each(function() {
@@ -86,7 +87,6 @@ $(document).ready(function() {
 
     // Time pereod adjustment
     $('.time-btn').on('click', function(e) {
-    	e.preventDefault();
     	$('.selected-time').removeClass('selected-time');
     	$(this).addClass('selected-time');
     	let timePereod = parseInt(this.id.substr(4));

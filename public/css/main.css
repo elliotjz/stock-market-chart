@@ -63,23 +63,34 @@ button:focus {
 	box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
 }
 
-.time-btn {
-	background: #7aa7ef;
-	padding: 3px 8px;
-	border: 1px solid #000;
+#time-pereod-form {
+	display: flex;
+	justify-content: center;
+	width: 200px;
+	padding: 2px;
 	border-radius: 4px;
-	margin: 2px;
+	color: #555;
+	margin: 0 auto 6px auto;
+}
+.time-btn {
+	padding: 0px 10px;
+	border-right: 1px #bbb solid;
+	border-bottom: 1px #bbb solid;
+	margin: 0px;
 	font-size: 14px;
+}
+
+#time3 {
+	border-right: none;
 }
 
 .time-btn:hover {
 	cursor: pointer;
-	box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
 }
 
 .selected-time {
-	background-color: #2f78ed;
-	border: 2px solid #000;
+	color: #7aa7ef;
+	border-bottom: solid 2px #7aa7ef;
 }
 
 #message {
