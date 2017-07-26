@@ -2,8 +2,41 @@
 //let socket = io.connect('http://localhost:3000');
 let socket = io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
 
+function getStocksFromList() {
+    let stocks = [];
+    $('#stock-list').find('li').each(function() {
+        stocks.push(this.innerHTML);
+    });
+    return stocks
+}
 
-function chartStocks(stocks, timePereod) {
+function addStockToList(newStock) {
+    stocks = getStocksFromList();
+
+    let stockDash = newStock.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
+
+    let html = '<li class="stock" id="' + stockDash + '">' + newStock + '</li>';
+    $('#stock-list').append(html);
+
+    stocks.push(newStock);
+    
+    return stocks;
+}
+
+function removeStockFromList(stockCode) {
+    console.log('removing ' + stockCode + ' from list');
+    let id = "#" + stockCode;
+    $(id).remove();
+    let lis = document.getElementById("stock-list").getElementsByTagName("li");
+    let stocks = [];
+    for (let i = 0; i < lis.length; i++) {
+        stocks.push(lis[i].innerHTML.replace(/\-/g, '.'));
+    }
+
+    return stocks;
+}
+
+function chartStocks(stocks, timePereod, refreshSocket) {
 
     let promises = [];
 
@@ -28,16 +61,26 @@ function chartStocks(stocks, timePereod) {
         promises.push(p);
     }
     Promise.all(promises).then(historicalDataArray => {
+        if (refreshSocket) {
+            socket.emit('add-stock', {
+                stocks: stocks,
+                historicalDataArray: historicalDataArray
+            });
+        }
         putItOnAChart(stocks, historicalDataArray, timePereod);
     }, function(stockCode) {
     	// ERROR
     	console.log('Error for ' + stockCode);
     	$('#message').html('The stock you searched for wasn\'t found.');
         $('#message').show(500);
+
     	stockCode = stockCode.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
-    	socket.emit('remove-stock', {
-            stock: stockCode
-        })
+        removeStockFromList(stockCode);
+
+        let stocks = getStocksFromList();
+
+        let timePereod = parseInt($('.selected-time').attr('id').substr(4));
+        chartStocks(stocks, timePereod, false);
     })
 }
 

@@ -55,17 +55,12 @@ io.on('connection', function(socket) {
 
     socket.on('add-stock', function(data) {
         io.sockets.emit('add-stock', data);
-
-        StocksModel.findOne({id: '0'}, function(err, dbData) {
-        	if (err) throw err;
-        	let stocks = dbData.stocks;
-        	stocks.push(data.stock)
-        	StocksModel.update({id: '0'}, {
-        		$set: {stocks: stocks}
-        	}, function(err, data) {
-        		if (err) throw err;
-        	})
-        })
+        
+    	StocksModel.update({id: '0'}, {
+    		$set: {stocks: data.stocks}
+    	}, function(err, data) {
+    		if (err) throw err;
+    	})
     });
 
     socket.on('remove-stock', function(data) {

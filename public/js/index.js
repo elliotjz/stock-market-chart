@@ -10,7 +10,7 @@ $(document).ready(function() {
 	});
 
 	let initialTimePereod = parseInt($('.selected-time').attr('id').substr(4));
-    chartStocks(stockFromDB, initialTimePereod);
+    chartStocks(stockFromDB, initialTimePereod, false);
 
 
     // Connect to socket
@@ -25,7 +25,6 @@ $(document).ready(function() {
     	let newStock = $('#search-input').val().toUpperCase();
 
     	let alreadyInList = false;
-
     	$('#stock-list').find('li').each(function() {
     		if (this.innerHTML == newStock) {
     			alreadyInList = true;
@@ -34,9 +33,13 @@ $(document).ready(function() {
 
 		if (!alreadyInList) {
 			$('#message').hide();
-	        socket.emit('add-stock', {
-	            stock: newStock.replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-')
-	        })
+            // add stock to list and get stock list
+            let stocks = addStockToList(newStock);
+            
+            let timePereod = parseInt($('.selected-time').attr('id').substr(4));
+
+            chartStocks(stocks, timePereod, true);
+
 	    } else {
 	    	$('#message').html('Stock is already on chart');
             $('#message').show(500);
@@ -54,35 +57,27 @@ $(document).ready(function() {
     // Listen for events
     socket.on('add-stock', function(data) {
 
-    	let stocks = [];
-    	$('#stock-list').find('li').each(function() {
-    		stocks.push(this.innerHTML);
-    	});
+        // update stock list
+        $('.stock').remove();
 
-    	let stockNoDash = data.stock.replace(/\-/g, '.');
-
-    	let html = '<li class="stock" id="' + data.stock + '">' + stockNoDash + '</li>';
-    	$('#stock-list').append(html);
-
-    	stocks.push(stockNoDash);
-    	
-    	let timePereod = parseInt($('.selected-time').attr('id').substr(4));
-
-        chartStocks(stocks, timePereod);
-    })
-
-    socket.on('remove-stock', function(data) {
-    	let id = "#" + data.stock;
-    	$(id).remove();
-    	let lis = document.getElementById("stock-list").getElementsByTagName("li");
-        let stocks = [];
-        for (let i = 0; i < lis.length; i++) {
-        	stocks.push(lis[i].innerHTML.replace(/\-/g, '.'));
+        for (let i = 0; i < data.stocks.length; i++) {
+            let stockWithDash = data.stocks[i].replace(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/\s]/g, '-');
+            let html = '<li class="stock" id="' + stockWithDash + '">' + data.stocks[i] + '</li>';
+            $('#stock-list').append(html);
         }
 
         let timePereod = parseInt($('.selected-time').attr('id').substr(4));
 
-        chartStocks(stocks, timePereod);
+    	putItOnAChart(data.stocks, data.historicalDataArray, timePereod);
+    })
+
+    socket.on('remove-stock', function(data) {
+    	
+        let stocks = removeStockFromList(data.stock);
+
+        let timePereod = parseInt($('.selected-time').attr('id').substr(4));
+
+        chartStocks(stocks, timePereod, true);
     })
 
     // Time pereod adjustment
@@ -96,7 +91,7 @@ $(document).ready(function() {
         for (let i = 0; i < lis.length; i++) {
         	stocks.push(lis[i].innerHTML.replace(/\-/g, '.'));
         }
-        chartStocks(stocks, timePereod);
+        chartStocks(stocks, timePereod, false);
     })
 })
 
