@@ -14,8 +14,8 @@ $(document).ready(function() {
 
 
     // Connect to socket
-    //let socket = io.connect('http://localhost:3000');
-    let socket = io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
+    let socket = io.connect('http://localhost:3000');
+    //let socket = io.connect('https://elliotjz-stock-market-chart.herokuapp.com/');
 
 
     // Emit Events
